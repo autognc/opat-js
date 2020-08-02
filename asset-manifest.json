@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/opat-js/static/css/main.aaaf4be6.chunk.css",
+    "main.js": "/opat-js/static/js/main.d8d1b540.chunk.js",
+    "main.js.map": "/opat-js/static/js/main.d8d1b540.chunk.js.map",
+    "runtime-main.js": "/opat-js/static/js/runtime-main.17c417f5.js",
+    "runtime-main.js.map": "/opat-js/static/js/runtime-main.17c417f5.js.map",
+    "static/js/2.0c0235fa.chunk.js": "/opat-js/static/js/2.0c0235fa.chunk.js",
+    "static/js/2.0c0235fa.chunk.js.map": "/opat-js/static/js/2.0c0235fa.chunk.js.map",
+    "index.html": "/opat-js/index.html",
+    "precache-manifest.0c24a4b461ed856853aaaca2a586084c.js": "/opat-js/precache-manifest.0c24a4b461ed856853aaaca2a586084c.js",
+    "service-worker.js": "/opat-js/service-worker.js",
+    "static/css/main.aaaf4be6.chunk.css.map": "/opat-js/static/css/main.aaaf4be6.chunk.css.map",
+    "static/js/2.0c0235fa.chunk.js.LICENSE.txt": "/opat-js/static/js/2.0c0235fa.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.17c417f5.js",
+    "static/js/2.0c0235fa.chunk.js",
+    "static/css/main.aaaf4be6.chunk.css",
+    "static/js/main.d8d1b540.chunk.js"
+  ]
+}
