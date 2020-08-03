@@ -4,6 +4,7 @@ import "./index.css";
 import Viewer from "./viewer";
 import TopBar from "./topbar";
 import Sidebar from "./sidebar";
+import loadSampleData from "./sample_data/load_sample_data";
 
 function computeViewerPosition(img) {
   const { naturalHeight, naturalWidth, height, width } = img;
@@ -29,8 +30,10 @@ function App() {
   const [viewerPosition, setViewerPosition] = React.useState();
   const [poses, setPoses] = React.useState({});
   const [currentPose, setCurrentPose] = React.useState();
-  const [currentImageIndex, setCurrentImageIndex] = React.useState();
+  const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
   const [isPoseSaved, setIsPoseSaved] = React.useState(false);
+
+  React.useEffect(() => loadSampleData(setImages, setIntrinsics, setModel), []);
 
   const imgRef = React.useRef();
   const imgUrlRef = React.useRef();
@@ -125,13 +128,16 @@ function App() {
                 setViewerPosition(computeViewerPosition(imgRef.current));
               }}
             />
-          ) : null}
+          ) : (
+            <div className="loading">Loading sample data...</div>
+          )}
           <Viewer
             key="viewer"
             {...{
-              fov: intrinsics
-                ? intrinsics[images[currentImageIndex].name].fov_y
-                : 40,
+              fov:
+                intrinsics && images.length > 0
+                  ? intrinsics[images[currentImageIndex].name].fov_y
+                  : 40,
               model,
               position: viewerPosition,
               initialPose:
