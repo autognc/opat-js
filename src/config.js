@@ -13,6 +13,7 @@ const CONFIG = {
     Slash: "rotateMinusX",
     Period: "rotatePlusX",
     ShiftLeft: "decreaseSpeed",
+    Enter: "savePose",
   },
   opacity: 0.7,
   // meters/second

@@ -33,6 +33,23 @@ html, body, #root {
   margin-right: 1em;
 }
 
+.error {
+  color: darkred;
+}
+
+.pose {
+  color: darkred;
+  display: flex;
+}
+
+.pose > div:nth-child(1) {
+  margin-right: 1em;
+}
+
+.pose.saved {
+  color: green;
+}
+
 .body-wrapper {
   display: flex;
   flex: 1;

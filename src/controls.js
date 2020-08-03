@@ -30,6 +30,7 @@ export default class Controls {
   }
 
   handleKeyDown(event) {
+    if (this.ACTIONS[event.code]) event.preventDefault();
     if (event.repeat) return;
     switch (this.ACTIONS[event.code]) {
       case undefined:
@@ -37,32 +38,45 @@ export default class Controls {
       case "decreaseSpeed":
         this._decreaseSpeed();
         break;
+      case "savePose":
+        break;
       default:
         this.executingActions.add(this.ACTIONS[event.code]);
     }
   }
 
   handleKeyUp(event) {
+    if (this.ACTIONS[event.code]) event.preventDefault();
     switch (this.ACTIONS[event.code]) {
       case undefined:
         break;
       case "decreaseSpeed":
         this._resetSpeed();
         break;
+      case "savePose":
+        this._recordPose(true);
+        break;
       default:
         this.executingActions.delete(this.ACTIONS[event.code]);
+        this._recordPose(false);
     }
-    const { x, y, z, w } = this.model.quaternion;
-    this.setPose({
-      position: this.model.position.toArray(),
-      rotation: [w, x, y, z],
-    });
   }
 
   update(delta) {
     for (const action of this.executingActions) {
       action(delta);
     }
+  }
+
+  _recordPose(save) {
+    const { x, y, z, w } = this.model.quaternion;
+    this.setPose(
+      {
+        position: this.model.position.toArray(),
+        rotation: [w, x, y, z],
+      },
+      save
+    );
   }
 
   _decreaseSpeed() {

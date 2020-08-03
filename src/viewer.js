@@ -18,39 +18,40 @@ function Renderer({ model, fov, setPose, initialPose }) {
     model,
     setPose,
   ]);
-  React.useEffect(() => {
+  // Need useLayoutEffect because we want the controls to deregister ASAP (before render) whenever
+  // the image changes. With regular useEffect, which happens after render, there is a brief window of time
+  // between when the model's pose gets updated for the new image and when the old controls get de-registered.
+  // Since the old controls have the old setPose, they can set the new image's pose on the old image during this window.
+  React.useLayoutEffect(() => {
     controls.register();
-
     return () => controls.deregister();
   }, [controls]);
 
-  React.useEffect(() => {
-    camera.fov = fov;
-    camera.up = new Vector3(0, -1, 0);
-    camera.position.set(0, 0, 0);
-    camera.lookAt(0, 0, 100);
-    camera.updateProjectionMatrix();
+  camera.fov = fov;
+  camera.up = new Vector3(0, -1, 0);
+  camera.position.set(0, 0, 0);
+  camera.lookAt(0, 0, 100);
+  camera.updateProjectionMatrix();
 
-    let pose;
-    if (initialPose) {
-      pose = initialPose;
-    } else if (model.position.z === 0) {
-      pose = {
-        position: CONFIG.default_pose.position.slice(),
-        rotation: CONFIG.default_pose.rotation.slice(),
-      };
-    } else {
-      const { x, y, z, w } = model.quaternion;
-      pose = {
-        position: model.position.toArray(),
-        rotation: [w, x, y, z],
-      };
-    }
-    const [w, x, y, z] = pose.rotation;
-    model.position.set(...pose.position);
-    model.setRotationFromQuaternion(new Quaternion(x, y, z, w));
-    setPose(pose);
-  });
+  let pose;
+  if (initialPose) {
+    pose = initialPose;
+  } else if (model.position.z === 0) {
+    pose = {
+      position: CONFIG.default_pose.position.slice(),
+      rotation: CONFIG.default_pose.rotation.slice(),
+    };
+  } else {
+    const { x, y, z, w } = model.quaternion;
+    pose = {
+      position: model.position.toArray(),
+      rotation: [w, x, y, z],
+    };
+  }
+  const [w, x, y, z] = pose.rotation;
+  model.position.set(...pose.position);
+  model.setRotationFromQuaternion(new Quaternion(x, y, z, w));
+  setPose(pose, pose === initialPose);
 
   const composer = React.useRef();
   useFrame((state, delta) => {

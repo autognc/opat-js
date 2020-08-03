@@ -26,27 +26,36 @@ function App() {
   const [images, setImages] = React.useState([]);
   const [intrinsics, setIntrinsics] = React.useState();
   const [model, setModel] = React.useState();
-  const [currentImageIndex, setCurrentImageIndex] = React.useState();
   const [viewerPosition, setViewerPosition] = React.useState();
   const [poses, setPoses] = React.useState({});
-  const [currentPose, setCurrentPose] = React.useState({});
+  const [currentPose, setCurrentPose] = React.useState();
+  const [currentImageIndex, setCurrentImageIndex] = React.useState();
+  const [isPoseSaved, setIsPoseSaved] = React.useState(false);
 
   const imgRef = React.useRef();
-  const imgUrl = React.useMemo(
-    () =>
-      images.length > 0 ? URL.createObjectURL(images[currentImageIndex]) : null,
-    [images, currentImageIndex]
-  );
+  const imgUrlRef = React.useRef();
+  const imgUrl = React.useMemo(() => {
+    if (imgUrlRef.current) URL.revokeObjectURL(imgUrlRef.current);
+    imgUrlRef.current =
+      images.length > 0
+        ? URL.createObjectURL(images[currentImageIndex])
+        : undefined;
+    return imgUrlRef.current;
+  }, [images, currentImageIndex]);
 
   const handleKeyDown = React.useCallback(
     (event) => {
       if (images.length === 0 || event.repeat) return;
-      if (event.code === "PageDown")
+      if (event.code === "PageDown") {
+        event.preventDefault();
         setCurrentImageIndex((currentImageIndex + 1) % images.length);
-      if (event.code === "PageUp")
+      }
+      if (event.code === "PageUp") {
+        event.preventDefault();
         setCurrentImageIndex(
           (currentImageIndex - 1 + images.length) % images.length // Javascript is a cruel joke
         );
+      }
     },
     [images, currentImageIndex]
   );
@@ -55,23 +64,33 @@ function App() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown]);
 
-  React.useEffect(() => {
-    window.addEventListener("resize", () => {
-      if (imgRef.current)
-        setViewerPosition(computeViewerPosition(imgRef.current));
-    });
+  const handleResize = React.useCallback(() => {
+    if (imgRef.current)
+      setViewerPosition(computeViewerPosition(imgRef.current));
   }, []);
+  React.useEffect(() => {
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [handleResize]);
 
   const setPose = React.useCallback(
-    (pose) => {
+    (pose, save) => {
+      // cause the topbar to re-render
+      setCurrentPose(pose);
+
+      if (images.length === 0) return;
+      if (!save) {
+        setIsPoseSaved(false);
+        return;
+      }
+
       if (poses[images[currentImageIndex].name]) {
         // copy into the same reference so that the viewer doesn't re-render
         Object.assign(poses[images[currentImageIndex].name], pose);
       } else {
         poses[images[currentImageIndex].name] = pose;
       }
-      // do mutate the currentPose reference so that the topbar re-renders
-      setCurrentPose(pose);
+      setIsPoseSaved(true);
     },
     [poses, images, currentImageIndex]
   );
@@ -90,37 +109,38 @@ function App() {
           currentPose,
           setPoses,
           poses,
+          isPoseSaved,
         }}
       />
       <div className="body-wrapper">
         <div className="Viewer-wrapper">
-          {images.length > 0
-            ? [
-                <img
-                  className="background-image"
-                  alt=""
-                  key="img"
-                  ref={imgRef}
-                  src={imgUrl}
-                  onLoad={() => {
-                    setViewerPosition(computeViewerPosition(imgRef.current));
-                  }}
-                />,
-                <Viewer
-                  key="viewer"
-                  {...{
-                    images,
-                    fov: intrinsics
-                      ? intrinsics[images[currentImageIndex].name].fov_y
-                      : 40,
-                    model,
-                    position: viewerPosition,
-                    initialPose: poses[images[currentImageIndex].name],
-                    setPose,
-                  }}
-                />,
-              ]
-            : null}
+          {imgUrl ? (
+            <img
+              className="background-image"
+              alt=""
+              key="img"
+              ref={imgRef}
+              src={imgUrl}
+              onLoad={() => {
+                setViewerPosition(computeViewerPosition(imgRef.current));
+              }}
+            />
+          ) : null}
+          <Viewer
+            key="viewer"
+            {...{
+              fov: intrinsics
+                ? intrinsics[images[currentImageIndex].name].fov_y
+                : 40,
+              model,
+              position: viewerPosition,
+              initialPose:
+                images.length > 0
+                  ? poses[images[currentImageIndex].name]
+                  : undefined,
+              setPose,
+            }}
+          />
         </div>
         <Sidebar
           {...{
