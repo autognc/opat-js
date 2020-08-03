@@ -98,11 +98,21 @@ function App() {
     [poses, images, currentImageIndex]
   );
 
+  const fov =
+    intrinsics && images.length > 0
+      ? intrinsics[images[currentImageIndex].name].fov_y
+      : 40;
+
   return (
     <div className="main-wrapper">
       <TopBar
         {...{
-          currentImageIndex,
+          fov: viewerPosition
+            ? {
+                y: fov,
+                x: (fov * viewerPosition.width) / viewerPosition.height,
+              }
+            : undefined,
           setCurrentImageIndex,
           images,
           setImages,
@@ -134,10 +144,7 @@ function App() {
           <Viewer
             key="viewer"
             {...{
-              fov:
-                intrinsics && images.length > 0
-                  ? intrinsics[images[currentImageIndex].name].fov_y
-                  : 40,
+              fov,
               model,
               position: viewerPosition,
               initialPose:

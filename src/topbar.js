@@ -42,9 +42,9 @@ function loadIntrinsics(
       setError("Error parsing intrinsics file. Please try again.");
       return;
     }
-    const names = new Set(Array.from(images).map((i) => i.name));
-    if (!Object.keys(intrinsics).every((i) => names.has(i))) {
-      setError("Intrinsics keys do not match image filenames.");
+    const keys = new Set(Object.keys(intrinsics));
+    if (!Array.from(images).every((i) => keys.has(i.name))) {
+      setError("Missing entry in intrinsics file for image.");
       return;
     }
     if (!Object.values(intrinsics).every((i) => typeof i.fov_y === "number")) {
@@ -65,9 +65,9 @@ function loadPoses(file, setPoses, setError, images) {
     } catch {
       setError("Error parsing poses file. Please try again.");
     }
-    const names = new Set(Array.from(images).map((i) => i.name));
-    if (!Object.keys(poses).every((p) => names.has(p))) {
-      setError("Poses keys do not match image filenames.");
+    const keys = new Set(Object.keys(poses));
+    if (!Array.from(images).every((i) => keys.has(i.name))) {
+      setError("Missing entry in poses file for image.");
       return;
     }
     if (
@@ -90,13 +90,17 @@ function loadPoses(file, setPoses, setError, images) {
 
 function OpenFileButton(props) {
   const ref = React.useRef();
-  const { children, label, disabled, ...others } = props;
+  const { children, label, disabled, onChoose, ...others } = props;
   return [
     <input
       key="input"
       type="file"
       ref={ref}
       style={{ display: "none" }}
+      onChange={(event) => {
+        onChoose([...event.target.files]);
+        ref.current.value = "";
+      }}
       {...others}
     />,
     <div key="button" className="OpenFileButton">
@@ -114,9 +118,9 @@ function OpenFileButton(props) {
 }
 
 export default function TopBar({
-  currentImageIndex,
   setCurrentImageIndex,
   images,
+  fov,
   setImages,
   model,
   setModel,
@@ -144,16 +148,21 @@ export default function TopBar({
         </div>
       ) : null}
       {error ? <div className="error">{error}</div> : null}
-      <div>{images.length > 0 ? images[currentImageIndex].name : null}</div>
+      <div>
+        {fov ? `fov: (${fov.x.toFixed(2)}, ${fov.y.toFixed(2)})` : null}
+      </div>
       <div>
         <OpenFileButton
           label={images.length ? `${images.length} images ` : null}
           multiple
           accept="image/*"
-          onChange={(event) => {
-            if (event.target.files.length > 0) {
+          onChoose={(files) => {
+            if (files.length > 0) {
               setCurrentImageIndex(0);
-              setImages(event.target.files);
+              setImages(files);
+              setIntrinsics(undefined);
+              setPoses([]);
+              setError(null);
             }
           }}
         >
@@ -164,10 +173,10 @@ export default function TopBar({
         <OpenFileButton
           label={modelName}
           accept=".glb"
-          onChange={(event) => {
-            if (event.target.files.length > 0) {
-              setModelName(event.target.files[0].name);
-              loadModel(loader, event.target.files[0], setModel, setError);
+          onChoose={(files) => {
+            if (files.length > 0) {
+              setModelName(files[0].name);
+              loadModel(loader, files[0], setModel, setError);
             }
           }}
         >
@@ -179,10 +188,10 @@ export default function TopBar({
           label={intrinsicsName}
           accept=".json"
           disabled={!(model && images)}
-          onChange={(event) => {
-            if (event.target.files.length > 0) {
+          onChoose={(files) => {
+            if (files.length > 0) {
               loadIntrinsics(
-                event.target.files[0],
+                files[0],
                 setIntrinsics,
                 setError,
                 setIntrinsicsName,
@@ -198,9 +207,9 @@ export default function TopBar({
         <OpenFileButton
           accept=".json"
           disabled={!(model && images)}
-          onChange={(event) => {
-            if (event.target.files.length > 0) {
-              loadPoses(event.target.files[0], setPoses, setError, images);
+          onChoose={(files) => {
+            if (files.length > 0) {
+              loadPoses(files[0], setPoses, setError, images);
             }
           }}
         >
