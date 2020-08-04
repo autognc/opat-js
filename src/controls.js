@@ -1,5 +1,6 @@
 import { Vector3 } from "three";
 import CONFIG from "./config";
+import { encodeRotation } from "./utils";
 
 export default class Controls {
   ACTIONS = Object.fromEntries(
@@ -69,11 +70,10 @@ export default class Controls {
   }
 
   _recordPose(save) {
-    const { x, y, z, w } = this.model.quaternion;
     this.setPose(
       {
         position: this.model.position.toArray(),
-        rotation: [w, x, y, z],
+        rotation: encodeRotation(this.model.quaternion),
       },
       save
     );

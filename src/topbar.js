@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "react-bootstrap";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { Euler, Quaternion } from "three";
 
 function saveAs(obj) {
   if (Object.keys(obj).length === 0) {
@@ -135,15 +136,28 @@ export default function TopBar({
   const [error, setError] = React.useState(null);
   const loader = React.useMemo(() => new GLTFLoader(), []);
 
+  const rotation = React.useMemo(() => {
+    if (currentPose && currentPose.rotation) {
+      const [w, x, y, z] = currentPose.rotation;
+      const { x: ex, y: ey, z: ez } = new Euler().setFromQuaternion(
+        new Quaternion(x, y, z, w),
+        "ZYX"
+      );
+      return [ex, ey, ez];
+    } else {
+      return undefined;
+    }
+  }, [currentPose]);
+
   return (
     <div className="StatusBar">
-      {currentPose && currentPose.position && currentPose.rotation && !error ? (
+      {currentPose && currentPose.position && rotation && !error ? (
         <div className={`pose ${isPoseSaved ? "saved" : ""}`}>
           <div>{`position: (${currentPose.position.map((n) =>
             n.toFixed(2)
           )})`}</div>
-          <div>{`rotation: (${currentPose.rotation.map((n) =>
-            n.toFixed(2)
+          <div>{`rotation: (${rotation.map((n) =>
+            ((n * 180) / Math.PI).toFixed(2)
           )})`}</div>
         </div>
       ) : null}

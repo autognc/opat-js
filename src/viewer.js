@@ -1,7 +1,8 @@
 import React from "react";
 import { extend } from "react-three-fiber";
 import { Canvas, useFrame, useThree } from "react-three-fiber";
-import { Quaternion, Vector3 } from "three";
+import { Vector3 } from "three";
+import { encodeRotation, decodeRotation } from "./utils";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
@@ -42,15 +43,13 @@ function Renderer({ model, fov, setPose, initialPose }) {
       rotation: CONFIG.default_pose.rotation.slice(),
     };
   } else {
-    const { x, y, z, w } = model.quaternion;
     pose = {
       position: model.position.toArray(),
-      rotation: [w, x, y, z],
+      rotation: encodeRotation(model.quaternion),
     };
   }
-  const [w, x, y, z] = pose.rotation;
   model.position.set(...pose.position);
-  model.setRotationFromQuaternion(new Quaternion(x, y, z, w));
+  model.setRotationFromQuaternion(decodeRotation(pose.rotation));
   setPose(pose, pose === initialPose);
 
   const composer = React.useRef();
