@@ -50,7 +50,7 @@ function Renderer({ model, fov, setPose, initialPose }) {
   }
   model.position.set(...pose.position);
   model.setRotationFromQuaternion(decodeRotation(pose.rotation));
-  setPose(pose, pose === initialPose);
+  setPose(pose, false);
 
   const composer = React.useRef();
   useFrame((state, delta) => {

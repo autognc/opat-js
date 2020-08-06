@@ -31,7 +31,6 @@ function App() {
   const [poses, setPoses] = React.useState({});
   const [currentPose, setCurrentPose] = React.useState();
   const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
-  const [isPoseSaved, setIsPoseSaved] = React.useState(false);
 
   React.useEffect(() => loadSampleData(setImages, setIntrinsics, setModel), []);
 
@@ -48,17 +47,19 @@ function App() {
 
   const handleKeyDown = React.useCallback(
     (event) => {
-      if (images.length === 0 || event.repeat) return;
-      if (event.code === "PageDown") {
-        event.preventDefault();
-        setCurrentImageIndex((currentImageIndex + 1) % images.length);
-      }
-      if (event.code === "PageUp") {
-        event.preventDefault();
-        setCurrentImageIndex(
-          (currentImageIndex - 1 + images.length) % images.length // Javascript is a cruel joke
-        );
-      }
+      if (
+        images.length === 0 ||
+        event.repeat ||
+        !(event.code === "PageDown" || event.code === "PageUp")
+      )
+        return;
+
+      event.preventDefault();
+      const newImageIndex =
+        event.code === "PageDown"
+          ? (currentImageIndex + 1) % images.length
+          : (currentImageIndex - 1 + images.length) % images.length; // Javascript is a cruel joke
+      setCurrentImageIndex(newImageIndex);
     },
     [images, currentImageIndex]
   );
@@ -82,18 +83,16 @@ function App() {
       setCurrentPose(pose);
 
       if (images.length === 0) return;
-      if (!save) {
-        setIsPoseSaved(false);
-        return;
-      }
 
-      if (poses[images[currentImageIndex].name]) {
-        // copy into the same reference so that the viewer doesn't re-render
-        Object.assign(poses[images[currentImageIndex].name], pose);
-      } else {
-        poses[images[currentImageIndex].name] = pose;
+      if (save) {
+        if (poses[images[currentImageIndex].name]) {
+          // copy into the same reference so that the viewer doesn't re-render
+          Object.assign(poses[images[currentImageIndex].name], pose);
+        } else {
+          poses[images[currentImageIndex].name] = pose;
+        }
+        setCurrentImageIndex((currentImageIndex + 1) % images.length);
       }
-      setIsPoseSaved(true);
     },
     [poses, images, currentImageIndex]
   );
@@ -122,7 +121,7 @@ function App() {
           currentPose,
           setPoses,
           poses,
-          isPoseSaved,
+          currentImageIndex,
         }}
       />
       <div className="body-wrapper">

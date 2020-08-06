@@ -2,6 +2,7 @@ import React from "react";
 import { Button } from "react-bootstrap";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Euler, Quaternion } from "three";
+import * as equal from "fast-deep-equal";
 
 function saveAs(obj) {
   if (Object.keys(obj).length === 0) {
@@ -66,11 +67,6 @@ function loadPoses(file, setPoses, setError, images) {
     } catch {
       setError("Error parsing poses file. Please try again.");
     }
-    const keys = new Set(Object.keys(poses));
-    if (!Array.from(images).every((i) => keys.has(i.name))) {
-      setError("Missing entry in poses file for image.");
-      return;
-    }
     if (
       !Object.values(poses).every(
         (p) =>
@@ -120,6 +116,7 @@ function OpenFileButton(props) {
 
 export default function TopBar({
   setCurrentImageIndex,
+  currentImageIndex,
   images,
   fov,
   setImages,
@@ -129,7 +126,6 @@ export default function TopBar({
   currentPose,
   setPoses,
   poses,
-  isPoseSaved,
 }) {
   const [intrinsicsName, setIntrinsicsName] = React.useState("");
   const [modelName, setModelName] = React.useState("");
@@ -148,6 +144,14 @@ export default function TopBar({
       return undefined;
     }
   }, [currentPose]);
+
+  const isPoseSaved = React.useMemo(
+    () =>
+      currentPose && currentPose.position && rotation
+        ? equal(currentPose, poses[images[currentImageIndex].name])
+        : false,
+    [poses, currentPose, currentImageIndex, images, rotation]
+  );
 
   return (
     <div className="StatusBar">
