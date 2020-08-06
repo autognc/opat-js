@@ -179,7 +179,7 @@ export default function TopBar({
               setCurrentImageIndex(0);
               setImages(files);
               setIntrinsics(undefined);
-              setPoses([]);
+              setPoses({});
               setError(null);
             }
           }}
