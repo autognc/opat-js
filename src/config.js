@@ -18,10 +18,10 @@ const CONFIG = {
   opacity: 0.7,
   // meters/second
   translate_speed: 5,
-  translate_speed_low: 1,
+  translate_speed_low: 0.5,
   // degrees/second
   rotate_speed: 20,
-  rotate_speed_low: 5,
+  rotate_speed_low: 2,
   default_pose: {
     position: [0, 0, 50],
     rotation: [1, 0, 0, 0],
