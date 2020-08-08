@@ -92,3 +92,15 @@ html, body, #root {
   object-fit: contain;
   position: absolute;
 }
+
+.settings-gear {
+  position: absolute;
+  top: 1em;
+  left: 1em;
+  cursor: grab;
+  opacity: 0.5;
+}
+
+.settings-gear:hover {
+  opacity: 1;
+}

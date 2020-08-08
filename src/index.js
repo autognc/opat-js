@@ -5,6 +5,9 @@ import Viewer from "./viewer";
 import TopBar from "./topbar";
 import Sidebar from "./sidebar";
 import loadSampleData from "./sample_data/load_sample_data";
+import SettingsModal from "./settings_modal";
+import CONFIG from "./config";
+import { Gear } from "react-bootstrap-icons";
 
 function computeViewerPosition(img) {
   const { naturalHeight, naturalWidth, height, width } = img;
@@ -31,6 +34,8 @@ function App() {
   const [poses, setPoses] = React.useState({});
   const [currentPose, setCurrentPose] = React.useState();
   const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
+  const [isSettingsShown, setIsSettingsShown] = React.useState(false);
+  const [config, setConfig] = React.useState(CONFIG);
 
   React.useEffect(() => loadSampleData(setImages, setIntrinsics, setModel), []);
 
@@ -151,7 +156,13 @@ function App() {
                   ? poses[images[currentImageIndex].name]
                   : undefined,
               setPose,
+              config,
             }}
+          />
+          <Gear
+            size={24}
+            className="settings-gear"
+            onClick={() => setIsSettingsShown(true)}
           />
         </div>
         <Sidebar
@@ -162,6 +173,9 @@ function App() {
           }}
         />
       </div>
+      <SettingsModal
+        {...{ isSettingsShown, setIsSettingsShown, config, setConfig }}
+      />
     </div>
   );
 }

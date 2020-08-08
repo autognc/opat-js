@@ -179,6 +179,7 @@ export default function TopBar({
               setCurrentImageIndex(0);
               setImages(files);
               setIntrinsics(undefined);
+              setIntrinsicsName(null);
               setPoses({});
               setError(null);
             }

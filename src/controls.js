@@ -1,22 +1,21 @@
 import { Vector3 } from "three";
-import CONFIG from "./config";
 import { encodeRotation } from "./utils";
 
 export default class Controls {
-  ACTIONS = Object.fromEntries(
-    Object.entries(CONFIG.keybindings).map(([key, value]) => [
-      key,
-      this[value] ? this[value].bind(this) : value,
-    ])
-  );
-
-  constructor(model, setPose) {
+  constructor(model, setPose, config) {
+    this.config = config;
+    this.actions = Object.fromEntries(
+      Object.entries(config.keybindings).map(([action, keycode]) => [
+        keycode,
+        this[action] ? this[action].bind(this) : action,
+      ])
+    );
     this.model = model;
     this.keyDownListener = this.handleKeyDown.bind(this);
     this.keyUpListener = this.handleKeyUp.bind(this);
     this.executingActions = new Set();
-    this.translate_speed = CONFIG.translate_speed;
-    this.rotate_speed = (CONFIG.rotate_speed * 2 * Math.PI) / 180;
+    this.translate_speed = config.translate_speed;
+    this.rotate_speed = (config.rotate_speed * 2 * Math.PI) / 180;
     this.setPose = setPose;
   }
 
@@ -31,34 +30,36 @@ export default class Controls {
   }
 
   handleKeyDown(event) {
-    if (this.ACTIONS[event.code]) event.preventDefault();
+    // if (this.actions[event.code]) event.preventDefault();
     if (event.repeat) return;
-    switch (this.ACTIONS[event.code]) {
+    switch (this.actions[event.code]) {
       case undefined:
         break;
       case "decreaseSpeed":
         this._decreaseSpeed();
         break;
       case "savePose":
+        event.preventDefault();
         break;
       default:
-        this.executingActions.add(this.ACTIONS[event.code]);
+        this.executingActions.add(this.actions[event.code]);
     }
   }
 
   handleKeyUp(event) {
-    if (this.ACTIONS[event.code]) event.preventDefault();
-    switch (this.ACTIONS[event.code]) {
+    // if (this.actions[event.code]) event.preventDefault();
+    switch (this.actions[event.code]) {
       case undefined:
         break;
       case "decreaseSpeed":
         this._resetSpeed();
         break;
       case "savePose":
+        event.preventDefault();
         this._recordPose(true);
         break;
       default:
-        this.executingActions.delete(this.ACTIONS[event.code]);
+        this.executingActions.delete(this.actions[event.code]);
         this._recordPose(false);
     }
   }
@@ -80,12 +81,12 @@ export default class Controls {
   }
 
   _decreaseSpeed() {
-    this.translate_speed = CONFIG.translate_speed_low;
-    this.rotate_speed = (CONFIG.rotate_speed_low * 2 * Math.PI) / 180;
+    this.translate_speed = this.config.translate_speed_low;
+    this.rotate_speed = (this.config.rotate_speed_low * 2 * Math.PI) / 180;
   }
   _resetSpeed() {
-    this.translate_speed = CONFIG.translate_speed;
-    this.rotate_speed = (CONFIG.rotate_speed * 2 * Math.PI) / 180;
+    this.translate_speed = this.config.translate_speed;
+    this.rotate_speed = (this.config.rotate_speed * 2 * Math.PI) / 180;
   }
 
   translateUp(delta) {
