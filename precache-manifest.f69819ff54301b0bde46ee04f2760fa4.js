@@ -1,11 +1,11 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "450e015e674517e12d18d245d69d5699",
+    "revision": "fd3f4937f0250c4de82320eb6d0822ee",
     "url": "/opat-js/index.html"
   },
   {
-    "revision": "20a2b5b31e91084b1709",
-    "url": "/opat-js/static/css/main.5cf4243a.chunk.css"
+    "revision": "b32b25035de0abfb7f63",
+    "url": "/opat-js/static/css/main.9aaf50f7.chunk.css"
   },
   {
     "revision": "73873abdb5664001c757",
@@ -16,7 +16,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/opat-js/static/js/2.c9ee9f65.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "20a2b5b31e91084b1709",
+    "revision": "b32b25035de0abfb7f63",
     "url": "/opat-js/static/js/main.f7d35d2f.chunk.js"
   },
   {
